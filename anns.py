@@ -32,8 +32,7 @@ class ANN(nn.Module):
         self.body = nn.Sequential(*body)
         # TODO: Check if sigmoid is really required here.
         self.tail = nn.Sequential(*[
-            nn.Linear(prev_layers, output_dim, bias=bias),
-            nn.Sigmoid()
+            nn.Linear(prev_layers, output_dim, bias=bias)
         ])
 
     def forward(self, x):
