@@ -98,17 +98,17 @@ import shutil
 import pathlib
 from pathlib import Path
 
-from IPython.display import display, HTML
+# from IPython.display import display, HTML
  
-get_ipython().run_line_magic('matplotlib', 'inline')
+# get_ipython().run_line_magic('matplotlib', 'inline')
 plt.rcParams['figure.figsize'] = (10.0, 8.0) # set default size of plots 
 plt.rcParams['image.interpolation'] = 'nearest' 
 plt.rcParams['image.cmap'] = 'gray' 
  
 # for auto-reloading external modules 
 # see http://stackoverflow.com/questions/1907993/autoreload-of-modules-in-ipython 
-get_ipython().run_line_magic('load_ext', 'autoreload')
-get_ipython().run_line_magic('autoreload', '2')
+# get_ipython().run_line_magic('load_ext', 'autoreload')
+# get_ipython().run_line_magic('autoreload', '2')
 
 
 # In[2]:
@@ -117,7 +117,7 @@ get_ipython().run_line_magic('autoreload', '2')
 # Some suggestions of our libraries that might be helpful for this project
 from collections import Counter          # an even easier way to count
 from multiprocessing import Pool         # for multiprocessing
-from tqdm import tqdm_notebook as tqdm                    # fancy progress bars
+from tqdm import tqdm                    # fancy progress bars
 
 # Load other libraries here.
 # Keep it minimal! We should be easily able to reproduce your code.
@@ -138,14 +138,14 @@ import pandas as pd
 # In[3]:
 
 
-compute_mode = 'cpu'
+compute_mode = 'gpu'
 
 if compute_mode == 'cpu':
     device = torch.device('cpu')
 elif compute_mode == 'gpu':
     # If you are using pytorch on the GPU cluster, you have to manually specify which GPU device to use
     # It is extremely important that you *do not* spawn multi-GPU jobs.
-    os.environ["CUDA_VISIBLE_DEVICES"] = '2'    # Set device ID here
+    os.environ["CUDA_VISIBLE_DEVICES"] = '1'    # Set device ID here
     device = torch.device('cuda')
 else:
     raise ValueError('Unrecognized compute mode')
@@ -160,8 +160,8 @@ else:
 
 
 # Check that you are prepared with the data
-get_ipython().system(" printf '# train examples (Should be 13682) : '; ls data/train | wc -l")
-get_ipython().system(" printf '# test  examples (Should be 10000) : '; ls data/test | wc -l")
+# get_ipython().system(" printf '# train examples (Should be 13682) : '; ls data/train | wc -l")
+# get_ipython().system(" printf '# test  examples (Should be 10000) : '; ls data/test | wc -l")
 
 # Agent, Allaple, AutoIt, Basun, NothingFound, Patched, Swizzor, Texel, VB, Virut
 
@@ -430,11 +430,11 @@ def vectorize_raw_samples(raw_samples, nworkers=10):
 # In[13]:
 
 
-print('=> Processing: Train')
-train_data = vectorize_raw_samples(train_raw_samples)
-print()
-print('=> Processing: Test')
-test_data = vectorize_raw_samples(test_raw_samples)
+# print('=> Processing: Train')
+# train_data = vectorize_raw_samples(train_raw_samples)
+# print()
+# print('=> Processing: Test')
+# test_data = vectorize_raw_samples(test_raw_samples)
 
 
 # In[14]:
@@ -470,16 +470,6 @@ CLASSES = ["NothingFound", "Basun", "Agent", "Allaple", "AutoIt",
            "Patched", "Swizzor", "Texel", "VB", "Virut"]
 
 
-def evaluate_preds(y_gt, y_pred):
-    pass
-
-def save_model(model, out_path):
-    pass
-
-
-def save_data(eval_data, out_path):
-    with open(out_path, 'wb') as wf:
-        pickle.dump(eval_data, out_path)
         
 def find_class_occurences(dir_path='./data/train'):
     """
@@ -540,6 +530,7 @@ import malware_transforms as mlw_transforms
 
 vectorizer = mlw_transforms.CategoryCount()
 train_dataset = mlw_loader.MalwareDataset(root_dir='./data', dataset_type='train', transform=vectorizer)
+val_dataset = mlw_loader.MalwareDataset(root_dir='./data', dataset_type='val', transform=vectorizer)
 test_dataset = mlw_loader.MalwareDataset(root_dir='./data', dataset_type='test', transform=vectorizer)
 
 
@@ -575,9 +566,9 @@ import anns # this file contains the defintion for FCNs/ANNs.
 hidden_layers = [128, 256, 128, 64, 32, 16]
 
 # Optimization
-n_epochs = 25
+n_epochs = 10
 batch_size = 32
-lr = 5e-3
+lr = 1e-3
 momentum = 0.9
 num_workers = 4
 
@@ -589,6 +580,7 @@ num_workers = 4
 
 # Feel free to edit anything in this block
 train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers)
+val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
 test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
 
 model = anns.ANN(input_dim=num_feats, hidden_layers=hidden_layers,
@@ -599,7 +591,7 @@ optimizer = optim.Adam(model.parameters(), lr=lr)
 
 # loss function
 criterion = nn.CrossEntropyLoss(weight=torch.Tensor(class_weights))
-
+criterion = criterion.to(device)
 
 # In[31]:
 
@@ -618,11 +610,10 @@ def train_epoch(loader, model, criterion, optimizer, device, print_every=10):
 
         loss = criterion(Y_pred, Y_batch)
         running_loss = running_loss + loss.data
-        
-        if (i % print_every) == 0:
-            print("Loss at iteration {}: {}".format(i, loss.data))
-            break
-        
+
+        # if (i % print_every) == 0:
+        #     print("Loss at iteration {}: {}".format(i, loss.data))
+
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
@@ -648,8 +639,8 @@ def validate_epoch(loader, model, criterion, device, print_every=10):
         loss = criterion(Y_pred, Y_batch)
         running_loss += loss.data
 
-        if (i % print_every) == 0:
-            print("Loss at iteration {}: {}".format(i, loss.data))
+        # if (i % print_every) == 0:
+        #     print("Loss at iteration {}: {}".format(i, loss.data))
 
     mean_loss = running_loss / len(loader_iterable)
     return mean_loss
@@ -663,9 +654,11 @@ for epoch in range(n_epochs):
     print("Epoch [{} / {}]".format(epoch+1, n_epochs))
     print("Training...")
     mean_loss_train = train_epoch(train_loader, model, criterion, optimizer, device)
+    print("Training Loss = {}".format(mean_loss_train))
     print("Validating...")
-    mean_loss_test = validate_epoch(test_loader, model, criterion, device)
-    
+    mean_loss_test = validate_epoch(val_loader, model, criterion, device)
+    print("Validation Loss = {}".format(mean_loss_test))
+
     train_losses.append(mean_loss_train)
     test_losses.append(mean_loss_test)
 
@@ -707,6 +700,7 @@ pred_class, actual_class = predict(test_loader, model)
 f1score = f1_score(actual_class, pred_class, average=None)
 
 f1score.mean()
+print("F1 score = {}".format(f1score))
 
 
 # ## 2.f. Save Model + Data
@@ -722,21 +716,21 @@ f1score.mean()
 
 # Feel free to edit anything in this block
 
-expt_name = 'model:mlp_tokenizer:foo_key3:val3_key4:val4'
+# expt_name = 'model:mlp_tokenizer:foo_key3:val3_key4:val4'
 
-model_out_path = '{}.checkpoint.pth'.format(expt_name)
-save_model(model, model_out_path)
+# model_out_path = '{}.checkpoint.pth'.format(expt_name)
+# save_model(model, model_out_path)
 
-eval_data = {
-    'epoch': [],
-    'train_loss': [],
-    'test_loss': [],
-    'train_acc': [],
-    'test_acc': [],
-    ...
-}
-eval_out_path = '{}.eval.pickle'.format(expt_name)
-save_data(eval_data, eval_out_path)
+# eval_data = {
+#     'epoch': [],
+#     'train_loss': [],
+#     'test_loss': [],
+#     'train_acc': [],
+#     'test_acc': [],
+#     ...
+# }
+# eval_out_path = '{}.eval.pickle'.format(expt_name)
+# save_data(eval_data, eval_out_path)
 
 
 # ---
