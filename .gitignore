@@ -1,5 +1,6 @@
 meta.txt
 data/vec
+data-debug/
 .idea
 *.swp
 data/*.tar.gz

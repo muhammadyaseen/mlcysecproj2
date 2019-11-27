@@ -375,7 +375,7 @@ expt_name = 'baseline.model'
 hidden_layers = [128, 256, 128, 64, 32, 16]
 
 # Optimization
-n_epochs = 5
+n_epochs = 1 
 batch_size = 32
 lr = 1e-3
 momentum = 0.9
@@ -469,11 +469,15 @@ def validate_epoch(loader, model, criterion, device, print_every=10):
 train_losses, test_losses = [], []
 for epoch in range(n_epochs):
     print("Epoch [{} / {}]".format(epoch+1, n_epochs))
+
     print("Training...")
     mean_loss_train = train_epoch(train_loader, model, criterion, optimizer, device)
+    print("Training Loss: {}".format(mean_loss_train))
     train_losses.append(mean_loss_train)
+
     print("Validating...")
     mean_loss_test = validate_epoch(val_loader, model, criterion, device)
+    print("Testing Loss: {}".format(mean_loss_test))
     test_losses.append(mean_loss_test)
 
 
@@ -486,7 +490,6 @@ def predict(loader, model):
     model.eval()
     y_preds, y_gts = [], []
 
-    i = 0
     for sample in tqdm(loader):
         X_batch, Y_batch = sample['trace'], sample['label_idx']
         X_batch, Y_batch = X_batch.to(device), Y_batch.to(device)
@@ -496,11 +499,6 @@ def predict(loader, model):
         
         y_preds.append(Y_pred)
         y_gts.append(Y_batch)
-        
-        i += 1
-        
-        if i == 3:
-            break
         
     return torch.cat(y_preds), torch.cat(y_gts)
 
@@ -513,7 +511,8 @@ pred_class, actual_class = predict(test_loader, model)
 # Evaluation Metric: F1 score.
 f1score = f1_score(actual_class, pred_class.numpy(), average=None)
 
-f1score.mean()
+mean_f1score = f1score.mean()
+print("mean f1 Score: {}".format(mean_f1score))
 
 
 # ## 2.f. Save Model + Data
@@ -523,24 +522,19 @@ f1score.mean()
 
 # Feel free to edit anything in this block
 
-save_path = ''
-with open(save_path) as fn:
-    pickle.dump(model, fn)
-    
+save_path = '{0}-checkpoint'.format(expt_name)
+torch.save(model.state_dict(), save_path)
 
-# model_out_path = '{}.checkpoint.pth'.format(expt_name)
-# save_model(model, model_out_path)
+with open("history.pkl") as fn:
+    pickle.dump({'train_losses': train_losses,
+                'test_losses': test_losses,
+                'mean_f1score': mean_f1score}, fn)
 
-eval_data = {
-    'epoch': [],
-    'train_loss': [],
-    'test_loss': [],
-    'train_acc': [],
-    'test_acc': [],
-  #  ...
-}
-eval_out_path = '{}.eval.pickle'.format(expt_name)
-save_data(eval_data, eval_out_path)
+
+# In[ ]:
+
+
+
 
 
 # ---
