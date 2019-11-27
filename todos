@@ -1,0 +1,7 @@
+1. add class freq/dist graph on train daa
+2. loss graph
+3. 10x10 conf mat (heatmap)
+4. report train/test error with and without class weights in loss func
+5. plot accuracy on val set during training (each epoch)
+6. make validation set
+7. unigram model
