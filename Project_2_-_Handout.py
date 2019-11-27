@@ -549,7 +549,7 @@ print("mean f1 Score: {}".format(mean_f1score))
 save_path = '{0}-checkpoint'.format(expt_name)
 torch.save(model.state_dict(), save_path)
 
-with open("history-{0}.pkl".format(opts.expt_name),"wb") as fn:
+with open("history-{0}.pkl".format(expt_name),"wb") as fn:
     pickle.dump({'train_losses': train_losses,
                 'test_losses': test_losses,
                 'mean_f1score': mean_f1score}, fn)
