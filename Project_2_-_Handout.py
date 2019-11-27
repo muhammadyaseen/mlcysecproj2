@@ -143,7 +143,7 @@ import pandas as pd
 ##########################
 p = argparse.ArgumentParser()
 p.add_argument("--num_epochs", default=1, type=int)
-p.add_argument("--vectorizer", default="", type=str)
+p.add_argument("--vectorizer", default="n", type=str)
 opts = p.parse_args()
 ##########################
 
@@ -549,7 +549,7 @@ print("mean f1 Score: {}".format(mean_f1score))
 save_path = '{0}-checkpoint'.format(expt_name)
 torch.save(model.state_dict(), save_path)
 
-with open("history.pkl") as fn:
+with open("history-{0}.pkl".format(opts.expt_name),"wb") as fn:
     pickle.dump({'train_losses': train_losses,
                 'test_losses': test_losses,
                 'mean_f1score': mean_f1score}, fn)
