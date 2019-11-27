@@ -347,16 +347,16 @@ if opts.vectorizer == 'cc':
     vectorizer = mlw_transforms.CategoryCount()
     expt_name = 'baseline.model'
 elif opts.vectorizer == 'v50':
-    vectorizer = mlw_transforms.HistogramTransform("vectorizer_50ft.v")
+    vectorizer = mlw_transforms.HistogramTransform("vectorizer_50ft.v", 50)
     expt_name = 'vectorizer50.model'
 elif opts.vectorizer == 'v100':
-    vectorizer = mlw_transforms.HistogramTransform("vectorizer_100ft.v")
+    vectorizer = mlw_transforms.HistogramTransform("vectorizer_100ft.v", 100)
     expt_name = 'vectorizer100.model'
 elif opts.vectorizer == 'v200':
-    vectorizer = mlw_transforms.HistogramTransform("vectorizer_200ft.v")
+    vectorizer = mlw_transforms.HistogramTransform("vectorizer_200ft.v", 200)
     expt_name = 'vectorizer200.model'
 elif opts.vectorizer == 'v25':
-    vectorizer = mlw_transforms.HistogramTransform("vectorizer_25ft.v")
+    vectorizer = mlw_transforms.HistogramTransform("vectorizer_25ft.v", 25)
     expt_name = 'vectorizer25.model'
 else:
     raise NotImplementedError()
