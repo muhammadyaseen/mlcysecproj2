@@ -427,7 +427,8 @@ def train_epoch(loader, model, criterion, optimizer, device, print_every=10):
         running_loss = running_loss + loss.data
         
         if (i % print_every) == 0:
-            #print("Loss at iteration {}: {}".format(i, loss.data))
+            pass
+        #print("Loss at iteration {}: {}".format(i, loss.data))
         
         optimizer.zero_grad()
         loss.backward()
@@ -455,7 +456,8 @@ def validate_epoch(loader, model, criterion, device, print_every=10):
         running_loss += loss.data
 
         if (i % print_every) == 0:
-            #print("Loss at iteration {}: {}".format(i, loss.data))
+            pass
+        #print("Loss at iteration {}: {}".format(i, loss.data))
 
     mean_loss = running_loss / len(loader_iterable)
     return mean_loss
