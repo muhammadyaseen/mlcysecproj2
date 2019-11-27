@@ -1,7 +1,9 @@
+data/vec
 .idea
 *.swp
 data/*.tar.gz
 data/train
+data/train_*
 data/test
 __pycache__
 .ipynb_checkpoints
