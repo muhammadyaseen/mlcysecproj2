@@ -100,25 +100,25 @@ from pathlib import Path
 
 from IPython.display import display, HTML
  
-get_ipython().run_line_magic('matplotlib', 'inline')
+#%matplotlib inline 
 plt.rcParams['figure.figsize'] = (10.0, 8.0) # set default size of plots 
 plt.rcParams['image.interpolation'] = 'nearest' 
 plt.rcParams['image.cmap'] = 'gray' 
  
 # for auto-reloading external modules 
 # see http://stackoverflow.com/questions/1907993/autoreload-of-modules-in-ipython 
-get_ipython().run_line_magic('load_ext', 'autoreload')
-get_ipython().run_line_magic('autoreload', '2')
+#%load_ext autoreload
+#%autoreload 2
 
 
-# In[2]:
+# In[1]:
 
 
 # Some suggestions of our libraries that might be helpful for this project
 from collections import Counter          # an even easier way to count
 from multiprocessing import Pool         # for multiprocessing
-from tqdm import tqdm_notebook as tqdm                    # fancy progress bars
-
+from tqdm import tqdm                    # fancy progress bars
+  
 # Load other libraries here.
 # Keep it minimal! We should be easily able to reproduce your code.
 # We only support sklearn and pytorch.
@@ -156,13 +156,9 @@ else:
 #   * Download the datasets: [train](https://nextcloud.mpi-klsb.mpg.de/index.php/s/pJrRGzm2So2PMZm) (128M) and [test](https://nextcloud.mpi-klsb.mpg.de/index.php/s/zN3yeWzQB3i5WqE) (92M)
 #   * Unpack them under `./data/train` and `./data/test`
 
-# In[4]:
-
-
-# Check that you are prepared with the data
-get_ipython().system(" printf '# train examples (Should be 13682) : '; ls data/train | wc -l")
-get_ipython().system(" printf '# test  examples (Should be 10000) : '; ls data/test | wc -l")
-
+# # Check that you are prepared with the data
+# #! printf '# train examples (Should be 13682) : '; ls data/train | wc -l
+# #! printf '# test  examples (Should be 10000) : '; ls data/test | wc -l
 
 # Now that you're set, let's briefly look at the data you have been handed.
 # Each file encodes the behavior report of a program (potentially a malware), using an encoding scheme called "The Malware Instruction Set" (MIST for short).
@@ -379,9 +375,9 @@ expt_name = 'baseline.model'
 hidden_layers = [128, 256, 128, 64, 32, 16]
 
 # Optimization
-n_epochs = 25
+n_epochs = 5
 batch_size = 32
-lr = 5e-3
+lr = 1e-3
 momentum = 0.9
 num_workers = 4
 
@@ -431,7 +427,7 @@ def train_epoch(loader, model, criterion, optimizer, device, print_every=10):
         running_loss = running_loss + loss.data
         
         if (i % print_every) == 0:
-            print("Loss at iteration {}: {}".format(i, loss.data))
+            #print("Loss at iteration {}: {}".format(i, loss.data))
         
         optimizer.zero_grad()
         loss.backward()
@@ -459,7 +455,7 @@ def validate_epoch(loader, model, criterion, device, print_every=10):
         running_loss += loss.data
 
         if (i % print_every) == 0:
-            print("Loss at iteration {}: {}".format(i, loss.data))
+            #print("Loss at iteration {}: {}".format(i, loss.data))
 
     mean_loss = running_loss / len(loader_iterable)
     return mean_loss
@@ -473,10 +469,9 @@ for epoch in range(n_epochs):
     print("Epoch [{} / {}]".format(epoch+1, n_epochs))
     print("Training...")
     mean_loss_train = train_epoch(train_loader, model, criterion, optimizer, device)
-    print("Validating...")
-    mean_loss_test = validate_epoch(test_loader, model, criterion, device)
-    
     train_losses.append(mean_loss_train)
+    print("Validating...")
+    mean_loss_test = validate_epoch(val_loader, model, criterion, device)
     test_losses.append(mean_loss_test)
 
 
@@ -540,7 +535,7 @@ eval_data = {
     'test_loss': [],
     'train_acc': [],
     'test_acc': [],
-    ...
+  #  ...
 }
 eval_out_path = '{}.eval.pickle'.format(expt_name)
 save_data(eval_data, eval_out_path)
